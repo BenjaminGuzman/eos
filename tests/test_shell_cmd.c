@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#ifndef _WIN32
+#include <sys/stat.h>
+#include <unistd.h>
+#endif
 
 static int tests_run = 0;
 static int tests_passed = 0;
@@ -248,19 +252,53 @@ TEST(test_install_never_runs_a_truncated_line)
     memcpy(longdir, prefix, sizeof(prefix) - 1);
     longdir[sizeof(longdir) - 1] = '\0';
 
-    /* The NuttX install line names the two directories four times: over
-     * 2000 bytes, which the old 1024-byte buffer cut inside a quoted path;
-     * the shell then died on the unterminated quote. The whole line fits
-     * the 4096-byte builder and reaches the shell, where the mkdir fails.
-     * The POSIX line ends in `|| true`, so it exits 0; the cmd.exe line has
-     * no such tail, so it exits non-zero. Either is a line that ran whole.
-     * EOS_ERR_INVALID would mean it was refused before running. */
+    /* A line over the old 1024-byte buffers but inside the 4096-byte builder
+     * must reach the shell whole. Under the old buffers it was cut inside a
+     * quoted path and the shell died on the unterminated quote.
+     *
+     * The discriminator cannot be the exit status: a line that ran whole and
+     * a line the shell could not parse both exit non-zero. Until #166 the
+     * POSIX line ended in `|| true`, which made a whole line exit 0 and so
+     * told the two apart; that tail is gone, so the test now observes what
+     * only a whole line can do. */
     EosBackend b;
     eos_backend_nuttx_init(&b);
 #ifdef _WIN32
+    /* cmd.exe names the directories four times, so the 511-byte path is
+     * ~2000 bytes and fits. mkdir fails on the reserved NUL name: a known
+     * reason, from a line that ran. EOS_ERR_INVALID would mean refused. */
     ASSERT(b.install(&b, longdir, longdir) == EOS_ERR_BUILD);
 #else
-    ASSERT(b.install(&b, longdir, longdir) == EOS_OK);
+    /* The POSIX line names them eight times since #166 made the .bin -> .elf
+     * fallback explicit, so 511 bytes would no longer fit (4303 bytes) and
+     * the builder would refuse it. A 300-byte path gives a 2615-byte line:
+     * over the old limit, inside the new one.
+     *
+     * The directory is creatable and initially absent. A whole line runs
+     * `mkdir -p` first, then finds no nuttx image and exits 1. A truncated
+     * line fails to parse, and a shell executes nothing of a line it cannot
+     * parse -- so the directory existing afterwards is proof the line ran
+     * whole, and EOS_ERR_BUILD is the known reason it then stopped. */
+    char base[] = "/tmp/eos_trunc_XXXXXX";
+    ASSERT(mkdtemp(base) != NULL);
+    char fitdir[EOS_MAX_PATH];
+    int n = snprintf(fitdir, sizeof(fitdir), "%s/", base);
+    for (; n < 300; n++) {                 /* components stay under NAME_MAX */
+        fitdir[n] = (n % 100 == 0) ? '/' : 'd';
+    }
+    fitdir[n] = '\0';
+
+    struct stat st;
+    ASSERT(stat(fitdir, &st) != 0);                     /* absent before */
+    ASSERT(b.install(&b, fitdir, fitdir) == EOS_ERR_BUILD);
+    ASSERT(stat(fitdir, &st) == 0 && S_ISDIR(st.st_mode)); /* ran whole */
+
+    /* Best-effort removal of the scratch tree. Not a verification: every
+     * assertion above has already run, and a leftover under /tmp changes no
+     * result. */
+    char rm[EOS_MAX_PATH + 16];
+    snprintf(rm, sizeof(rm), "rm -rf %s", base);
+    (void)system(rm);
 #endif
 
     /* And the builder refuses when even one more argument would not fit. */
