@@ -377,6 +377,11 @@ add_executable(test_pkg_fetch test_pkg_fetch.c)
 target_link_libraries(test_pkg_fetch PRIVATE eos_pkg eos_core)
 add_test(NAME test_pkg_fetch COMMAND test_pkg_fetch)
 
+# --- test_exec_argv: argv-form exec never invokes a shell (issue #172) ---
+add_executable(test_exec_argv test_exec_argv.c ../cmd/eos/exec_argv.c)
+target_include_directories(test_exec_argv PRIVATE ../cmd/eos)
+add_test(NAME test_exec_argv COMMAND test_exec_argv)
+
 # --- Fuzz targets ---
 # Opt-in (-DEOS_ENABLE_FUZZING=ON, Clang only); the subdirectory guards itself.
 add_subdirectory(fuzz)
