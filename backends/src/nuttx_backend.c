@@ -57,9 +57,13 @@ static EosResult nuttx_install(EosBackend *self, const char *build_dir,
              "if not exist \"%s\" mkdir \"%s\" && copy /Y \"%s\\nuttx.bin\" \"%s\\firmware.bin\" 2>nul",
              install_dir, install_dir, build_dir, install_dir
 #else
-             "mkdir -p \"%s\" && cp -f \"%s/nuttx.bin\" \"%s/firmware.bin\" 2>/dev/null || "
-             "cp -f \"%s/nuttx\" \"%s/firmware.elf\" 2>/dev/null || true",
-             install_dir, build_dir, install_dir, build_dir, install_dir
+             "mkdir -p \"%s\" && if [ -f \"%s/nuttx.bin\" ]; then "
+             "cp -f \"%s/nuttx.bin\" \"%s/firmware.bin\"; "
+             "elif [ -f \"%s/nuttx\" ]; then "
+             "cp -f \"%s/nuttx\" \"%s/firmware.elf\"; "
+             "else echo \"nuttx_install: no nuttx.bin or nuttx image in %s\" >&2; exit 1; fi",
+             install_dir, build_dir, build_dir, install_dir,
+             build_dir, build_dir, install_dir, build_dir
 #endif
     );
     EOS_INFO("NuttX install: %s", cmd);

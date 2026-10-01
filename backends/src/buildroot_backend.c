@@ -55,7 +55,7 @@ static EosResult buildroot_install(EosBackend *self, const char *build_dir,
              install_dir, install_dir, build_dir, install_dir);
 #else
     snprintf(cmd, sizeof(cmd),
-             "mkdir -p \"%s\" && cp -r \"%s/images/\"* \"%s/\" 2>/dev/null || true",
+             "mkdir -p \"%s\" && cp -r \"%s/images/\"* \"%s/\"",
              install_dir, build_dir, install_dir);
 #endif
     EOS_INFO("Buildroot install: %s", cmd);

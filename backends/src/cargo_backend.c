@@ -56,7 +56,7 @@ static EosResult cargo_install(EosBackend *self, const char *build_dir,
     snprintf(cmd, sizeof(cmd),
              "mkdir -p \"%s/bin\" && "
              "find \"%s/target/release\" -maxdepth 1 -type f -executable "
-             "-exec cp {} \"%s/bin/\" \\; 2>/dev/null || true",
+             "-exec cp {} \"%s/bin/\" \\;",
              install_dir, build_dir, install_dir);
 #endif
     EOS_INFO("Cargo install: %s", cmd);

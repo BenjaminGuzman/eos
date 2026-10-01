@@ -194,6 +194,13 @@ add_executable(test_firmware test_firmware.c)
 target_link_libraries(test_firmware PRIVATE eos_systems eos_core)
 add_test(NAME test_firmware COMMAND test_firmware)
 
+# --- test_backend_install: install backends must not report EOS_OK when the
+# copy moved nothing (issue #166). Negative tests fail against the old
+# "|| true" tails; positive tests pin the artifact contracts. ---
+add_executable(test_backend_install test_backend_install.c)
+target_link_libraries(test_backend_install PRIVATE eos_backends eos_core)
+add_test(NAME test_backend_install COMMAND test_backend_install)
+
 # --- test_security: Keystore, ACL ---
 add_executable(test_security test_security.c)
 target_link_libraries(test_security PRIVATE eos_security eos_crypto)

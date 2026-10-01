@@ -78,9 +78,13 @@ static EosResult zephyr_install(EosBackend *self, const char *build_dir,
              "if not exist \"%s\" mkdir \"%s\" && copy /Y \"%s\\zephyr\\zephyr.bin\" \"%s\\firmware.bin\"",
              install_dir, install_dir, build_dir, install_dir
 #else
-             "mkdir -p \"%s\" && cp -f \"%s/zephyr/zephyr.bin\" \"%s/firmware.bin\" 2>/dev/null || "
-             "cp -f \"%s/zephyr/zephyr.elf\" \"%s/firmware.elf\" 2>/dev/null || true",
-             install_dir, build_dir, install_dir, build_dir, install_dir
+             "mkdir -p \"%s\" && if [ -f \"%s/zephyr/zephyr.bin\" ]; then "
+             "cp -f \"%s/zephyr/zephyr.bin\" \"%s/firmware.bin\"; "
+             "elif [ -f \"%s/zephyr/zephyr.elf\" ]; then "
+             "cp -f \"%s/zephyr/zephyr.elf\" \"%s/firmware.elf\"; "
+             "else echo \"zephyr_install: no zephyr.bin or zephyr.elf in %s/zephyr\" >&2; exit 1; fi",
+             install_dir, build_dir, build_dir, install_dir,
+             build_dir, build_dir, install_dir, build_dir
 #endif
     );
     EOS_INFO("Zephyr install: %s", cmd);

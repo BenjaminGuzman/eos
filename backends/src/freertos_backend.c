@@ -58,7 +58,7 @@ static EosResult freertos_install(EosBackend *self, const char *build_dir,
 #else
              "mkdir -p \"%s\" && "
              "find \"%s\" -maxdepth 2 \\( -name '*.bin' -o -name '*.elf' -o -name '*.hex' \\) "
-             "-exec cp {} \"%s/\" \\; 2>/dev/null || true",
+             "-exec cp {} \"%s/\" \\;",
              install_dir, build_dir, install_dir
 #endif
     );
