@@ -33,7 +33,11 @@ ldflags:
   - -mcpu=cortex-m3
   - -mthumb
   - -Wl,--gc-sections
-  - -specs=nosys.specs
+  # newlib-nano: full newlib's printf needs more than 768 bytes of task stack
+  # with gcc 9, and more than the template's 1024 with the newer toolchain on
+  # ubuntu-latest, where the rtos template printed one line and then hung.
+  # nano's printf runs in a 512-byte task.
+  - -specs=nano.specs
   - -specs=rdimon.specs
   # Opens the semihosting console before the application's main() runs.
   - -Wl,--wrap=main
