@@ -170,6 +170,17 @@ jobs:
             exit 1
           fi
 
+      # main_system_test never starts the scheduler, so it cannot catch a
+      # broken context switch. This test starts the kernel, and its tasks only
+      # make progress through SysTick and PendSV. QEMU's exit status is the
+      # guest's exit() status, so 0 means it passed and anything else fails.
+      - name: Scheduler on QEMU (sim/qemu_cortex_m3)
+        run: |
+          python3 -m pip install --quiet pyyaml
+          sim/qemu_cortex_m3/build.sh _build_qemu/scheduler.elf sim/qemu_cortex_m3/scheduler_test.c
+          timeout 30 qemu-system-arm -M lm3s6965evb -nographic -semihosting \
+            -kernel _build_qemu/scheduler.elf
+
   # ── Required check ────────────────────────────────────────────────────────
   # See https://github.com/embeddedos-org/.github/blob/master/STANDARDS.md --
   # the org-wide file, not a local one; there is no .github/STANDARDS.md in
