@@ -23,13 +23,32 @@
  *
  * A NULL value returns 0 -- "refuse" -- because that is the only right
  * default for a predicate guarding command construction. */
+/* Windows (cmd.exe, then the program's own CRT argv parsing) reads a quoted
+ * value differently from a POSIX shell:
+ *   - A backslash is the path separator and means nothing inside double
+ *     quotes, so refusing it refused every Windows path. eos clean, the
+ *     cargo/pip/npm backends and the install tests all failed on the MSVC
+ *     leg with "refusing a shell argument".
+ *   - A backslash directly before the closing quote is different: the CRT
+ *     reads \" as a literal quote, so "C:\dir\" swallows the arguments
+ *     after it. A trailing backslash is refused.
+ *   - %VAR% expands even inside double quotes, and so does !VAR! when
+ *     delayed expansion is on. Both are refused. */
 int eos_shell_arg_is_safe(const char *arg) {
     const unsigned char *p;
     if (!arg) return 0;
+#ifdef _WIN32
+    static const char refused[] = ";|&><$()\"'`%!";
+#else
+    static const char refused[] = ";|&><$()\"'`\\";
+#endif
     for (p = (const unsigned char *)arg; *p; p++) {
         if (*p < 0x20 || *p == 0x7f) return 0;
-        if (strchr(";|&><$()\"'`\\", (char)*p)) return 0;
+        if (strchr(refused, (char)*p)) return 0;
     }
+#ifdef _WIN32
+    if (p != (const unsigned char *)arg && p[-1] == '\\') return 0;
+#endif
     return 1;
 }
 
