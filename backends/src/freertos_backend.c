@@ -87,7 +87,13 @@ static EosResult freertos_install(EosBackend *self, const char *build_dir,
     /* In-process, like the POSIX find: a cmd.exe chain of
      * "copy *.bin & copy *.elf & copy *.hex" took its exit status from the
      * last copy, so a build with a .bin but no .hex failed to install. */
-    if (!build_dir || !install_dir) return EOS_ERR_INVALID;
+    /* The same refusal every backend gives (test_shell_cmd.c checks it):
+     * nothing here goes through a shell, but a value the shell builder would
+     * refuse is not a directory name this code should act on. */
+    if (!eos_shell_arg_is_safe(build_dir) || !eos_shell_arg_is_safe(install_dir)) {
+        EOS_ERROR("FreeRTOS install: refusing an unsafe directory name");
+        return EOS_ERR_INVALID;
+    }
     DWORD attrs = GetFileAttributesA(build_dir);
     if (attrs == INVALID_FILE_ATTRIBUTES || !(attrs & FILE_ATTRIBUTE_DIRECTORY)) {
         EOS_ERROR("FreeRTOS install: build directory not found: %s", build_dir);
