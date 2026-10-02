@@ -64,6 +64,19 @@ add_executable(test_config test_config.c)
 target_link_libraries(test_config PRIVATE eos_core)
 add_test(NAME test_config COMMAND test_config)
 
+# --- test_scheduler_cache_key: the cache key against oversized options ---
+# #includes core/src/scheduler.c to reach its static compute_cache_key(), the
+# same way test_ed25519_canonical_s.c reaches ed25519_verify.c's -- so that
+# source is not listed here. eos_core is still linked for the cache/graph
+# helpers the included unit calls: a static archive contributes only the
+# objects needed for still-undefined symbols, and scheduler.c.o is not one of
+# them because the test object already defines everything in it.
+add_executable(test_scheduler_cache_key test_scheduler_cache_key.c)
+# eos_backends supplies eos_backend_find_by_type(), which the included
+# scheduler.c calls from eos_scheduler_execute().
+target_link_libraries(test_scheduler_cache_key PRIVATE eos_backends eos_core)
+add_test(NAME test_scheduler_cache_key COMMAND test_scheduler_cache_key)
+
 # --- test_graph: Dependency graph ---
 add_executable(test_graph test_graph.c)
 target_link_libraries(test_graph PRIVATE eos_core)
