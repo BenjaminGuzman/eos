@@ -62,12 +62,31 @@ TEST(test_arg_rule_refuses_every_shell_metacharacter)
     /* Each of these, inside double quotes, is still read by a POSIX shell. */
     static const char *const hostile[] = {
         "a;b", "a|b", "a&b", "a>b", "a<b", "a$b", "a(b", "a)b",
-        "a\"b", "a'b", "a`b", "a\\b", "a\nb", "a\tb", "a\x7f",
+        "a\"b", "a'b", "a`b", "a\nb", "a\tb", "a\x7f",
+#ifdef _WIN32
+        /* cmd.exe expands these inside quotes; a trailing backslash escapes
+         * the closing quote for the CRT. */
+        "a%PATH%b", "a!X!b", "C:\\dir\\",
+#else
+        "a\\b",
+#endif
     };
     for (size_t i = 0; i < sizeof(hostile) / sizeof(hostile[0]); i++)
         ASSERT(!eos_shell_arg_is_safe(hostile[i]));
     ASSERT(!eos_shell_arg_is_safe(NULL));
     ASSERT(eos_shell_arg_is_safe(""));
+}
+
+TEST(test_arg_rule_follows_the_host_shell_on_backslashes)
+{
+#ifdef _WIN32
+    /* The path separator: inert inside cmd.exe double quotes. */
+    ASSERT(eos_shell_arg_is_safe("C:\\Users\\me\\build dir\\out.bin"));
+    ASSERT(eos_shell_arg_is_safe("test_backend_install_tmp_1740\\cargo-ok-i"));
+#else
+    /* A POSIX shell still reads \ inside double quotes. */
+    ASSERT(!eos_shell_arg_is_safe("C:\\Users\\me"));
+#endif
 }
 
 TEST(test_word_rule_is_an_allowlist)
@@ -318,6 +337,7 @@ int main(void)
 
     run_test_arg_rule_accepts_ordinary_paths_and_values();
     run_test_arg_rule_refuses_every_shell_metacharacter();
+    run_test_arg_rule_follows_the_host_shell_on_backslashes();
     run_test_word_rule_is_an_allowlist();
     run_test_builder_quotes_arguments_and_leaves_words_bare();
     run_test_a_refused_value_marks_the_command_and_stops_it_growing();
