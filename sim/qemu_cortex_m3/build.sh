@@ -7,13 +7,14 @@ here=$(cd "$(dirname "$0")" && pwd)
 root=$(cd "$here/../.." && pwd)
 out=$1; shift
 cc=${CC:-arm-none-eabi-gcc}
-python3 - "$here/sim.yaml" "$root" "$out" "$cc" "$@" <<'PY'
+# SIM_YAML selects another target's sim.yaml (sim/qemu_cortex_m33/build.sh uses it).
+python3 - "${SIM_YAML:-$here/sim.yaml}" "$root" "$out" "$cc" "$@" <<'PY'
 import os, subprocess, sys, tempfile, yaml
 cfg_path, root, out, cc, *apps = sys.argv[1:]
 cfg = yaml.safe_load(open(cfg_path))
 inc = [f"-I{os.path.join(root, d)}" for d in cfg["includes"]]
 srcs = [os.path.join(root, s) for s in cfg["sources"]] + [os.path.abspath(a) for a in apps]
-objdir = tempfile.mkdtemp(prefix="eos-qemu-m3-")
+objdir = tempfile.mkdtemp(prefix="eos-qemu-")
 objs = []
 for i, src in enumerate(srcs):
     obj = os.path.join(objdir, f"{i:02d}_{os.path.basename(src)}.o")
