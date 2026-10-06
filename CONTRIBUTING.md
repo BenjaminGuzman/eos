@@ -30,10 +30,9 @@ python -m venv .venv
 # Windows PowerShell: .venv\Scripts\Activate.ps1
 # Linux/macOS: source .venv/bin/activate
 python -m pip install -r requirements-dev.txt
-cmake -B build -DEOS_BUILD_TESTS=ON -DEOS_PRODUCT=vbox_test
-cmake --build build
-ctest --test-dir build --output-on-failure
-python -m pytest tests/ -v
+
+# Verify everything passes before committing
+make all
 ```
 
 The development requirements install `pytest` and `pytest-cov`. Doxygen is
@@ -148,7 +147,7 @@ chore: bump version to 0.6.0
 ### Pull Request Checklist
 
 - [ ] Code compiles with zero warnings on GCC, Clang, and MSVC
-- [ ] All existing tests pass
+- [ ] All existing tests and checks pass (`make all` exits with 0)
 - [ ] New HAL peripherals include stubs in `hal_extended_stubs.c`
 - [ ] New services include a `CMakeLists.txt` with proper `target_link_libraries`
 - [ ] Platform-specific code has `#ifdef` guards for Windows, macOS, and Linux

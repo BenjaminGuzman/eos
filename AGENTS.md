@@ -63,10 +63,7 @@ enables those services, and `vbox_test` is the profile meant for host-side
 testing.
 
 ```bash
-cmake -B build/host -DEOS_BUILD_TESTS=ON -DEOS_PRODUCT=vbox_test
-cmake --build build/host --parallel
-ctest --test-dir build/host --output-on-failure
-python run_all_tests.py
+make test
 ```
 
 Python tooling setup: `pip install -r requirements-dev.txt` (installs `pytest`

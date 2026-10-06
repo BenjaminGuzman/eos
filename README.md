@@ -63,8 +63,7 @@ Requires CMake ≥ 3.16 and a C11 compiler (GCC/Clang; MSVC on Windows). C only 
 the project declares `LANGUAGES C`.
 
 ```bash
-cmake -B build/host -DCMAKE_BUILD_TYPE=Release
-cmake --build build/host --parallel
+make build
 ```
 
 ### Build options
@@ -95,7 +94,27 @@ are unverified — see [`STATUS.md`](STATUS.md).
 Footprint of the full library set on Cortex-M4, via `arm-none-eabi-size -t`:
 **15.8 KB flash, 26.0 KB RAM**.
 
-## Test
+## Test & QA
+
+The recommended workflow before making a commit is to verify that everything passes using `make all`.
+Note: some files might currently fail static analysis or formatting checks; 
+these have been temporarily commented out in the Makefile to allow builds, but should be fixed in the future.
+
+```bash
+# Make sure your Python .venv is active before running
+make all # will build and test on local (host machine), see below for other hardware profiles
+```
+
+To run individual steps:
+
+```bash
+make test              # Runs C unit tests and Python suites
+make coverage          # Generates test coverage reports
+make static-analysis   # Runs cppcheck & clang-tidy
+make format            # Formats code with clang-format
+```
+
+You can change the product type if needed:
 
 ```bash
 # C unit tests
