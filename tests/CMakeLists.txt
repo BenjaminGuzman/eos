@@ -51,7 +51,7 @@ endif()
 add_executable(test_board_configs test_board_configs.c)
 add_test(NAME test_board_configs COMMAND test_board_configs boards)
 set_tests_properties(test_board_configs PROPERTIES
-    WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+    WORKING_DIRECTORY ${EoS_SOURCE_DIR}
 )
 
 # --- test_os_adapter: OS abstraction layer and its adapters ---
@@ -147,8 +147,8 @@ add_test(NAME test_crypto_ed25519_loworder COMMAND test_crypto_ed25519_loworder)
 # because the test object already defines everything in it.
 add_executable(test_ed25519_canonical_s test_ed25519_canonical_s.c)
 target_include_directories(test_ed25519_canonical_s PRIVATE
-    ${CMAKE_SOURCE_DIR}/services/crypto/include
-    ${CMAKE_SOURCE_DIR}/services/crypto/src)
+    ${EoS_SOURCE_DIR}/services/crypto/include
+    ${EoS_SOURCE_DIR}/services/crypto/src)
 target_link_libraries(test_ed25519_canonical_s PRIVATE eos_crypto)
 add_test(NAME test_ed25519_canonical_s COMMAND test_ed25519_canonical_s)
 
@@ -194,7 +194,7 @@ add_test(NAME test_e2e COMMAND test_e2e)
 # board header directory on the include path, which is why it never ran.
 add_executable(test_hal_stm32f4 test_hal_stm32f4.c)
 target_include_directories(test_hal_stm32f4 PRIVATE
-    ${CMAKE_SOURCE_DIR}/boards/stm32f407_discovery)
+    ${EoS_SOURCE_DIR}/boards/stm32f407_discovery)
 target_link_libraries(test_hal_stm32f4 PRIVATE eos_hal)
 add_test(NAME test_hal_stm32f4 COMMAND test_hal_stm32f4)
 
