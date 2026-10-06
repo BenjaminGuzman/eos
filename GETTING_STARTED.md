@@ -153,9 +153,7 @@ Output:
 ### 3. Run the test suite
 ```bash
 cd ../../
-cmake -B build -DEOS_BUILD_TESTS=ON
-cmake --build build
-ctest --test-dir build --output-on-failure
+cmake --workflow --preset test
 ```
 
 → See the full [host build quickstart](docs/quickstart-host.md).
