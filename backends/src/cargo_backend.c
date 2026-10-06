@@ -61,7 +61,7 @@ static EosResult cargo_install(EosBackend *self, const char *build_dir,
     eos_shell_cmd_arg(&cmd, install_dir);
     eos_shell_cmd_text(&cmd, "/bin && find ");
     eos_shell_cmd_arg(&cmd, build_dir);
-    eos_shell_cmd_text(&cmd, "/target/release -maxdepth 1 -type f -executable -exec cp {} ");
+    eos_shell_cmd_text(&cmd, "/target/release -maxdepth 1 -type f \\( -perm -0100 -o -perm -0010 -o -perm -0001 \\) -exec cp {} ");
     eos_shell_cmd_arg(&cmd, install_dir);
     eos_shell_cmd_text(&cmd, "/bin/ \\;");
 #endif
