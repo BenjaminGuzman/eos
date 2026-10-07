@@ -63,7 +63,12 @@ Requires CMake ≥ 3.16 and a C11 compiler (GCC/Clang; MSVC on Windows). C only 
 the project declares `LANGUAGES C`.
 
 ```bash
+# Requires CMake >= 3.25
 cmake --build --preset default
+
+# Fallback for older CMake (>= 3.16):
+# cmake -B build/host -DCMAKE_BUILD_TYPE=Release
+# cmake --build build/host --parallel
 ```
 
 ### Build options
@@ -102,10 +107,20 @@ these have been temporarily disabled in the CMake configuration to allow builds,
 
 ```bash
 # Make sure your Python .venv is active before running
+# Requires CMake >= 3.25
 cmake --workflow --preset test # will build and test on local (host machine), see below for other hardware profiles
+
+# Fallback for older CMake (>= 3.16):
+# cmake -B build/host -DEOS_BUILD_TESTS=ON -DEOS_PRODUCT=vbox_test
+# cmake --build build/host --parallel
+# ctest --test-dir build/host --output-on-failure
+# python run_all_tests.py
 ```
 
 To run individual steps:
+
+> **Note:** The `cmake --workflow` commands require **CMake ≥ 3.25**. If you are on an older version 
+> (e.g. Ubuntu 20.04/22.04), you can upgrade, or use the plain fallback commands.
 
 ```bash
 cmake --workflow --preset build               # Compiles the project natively (no linters, no tests)

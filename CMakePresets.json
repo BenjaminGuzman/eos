@@ -69,15 +69,10 @@
       "displayName": "All Checks Configuration",
       "inherits": [
         "test",
-        "static-analysis",
         "dynamic-analysis",
         "format"
       ],
-      "binaryDir": "${sourceDir}/build/all",
-      "cacheVariables": {
-        "EOS_ENABLE_CPPCHECK": "ON",
-        "EOS_ENABLE_CLANG_TIDY": "ON"
-      }
+      "binaryDir": "${sourceDir}/build/all"
     }
   ],
   "buildPresets": [
@@ -164,20 +159,6 @@
     {
       "name": "cppcheck",
       "configurePreset": "static-analysis",
-      "targets": [
-        "cppcheck"
-      ]
-    },
-    {
-      "name": "all-clang-tidy",
-      "configurePreset": "all",
-      "targets": [
-        "clang-tidy"
-      ]
-    },
-    {
-      "name": "all-cppcheck",
-      "configurePreset": "all",
       "targets": [
         "cppcheck"
       ]
@@ -341,14 +322,6 @@
         {
           "type": "build",
           "name": "all-format"
-        },
-        {
-          "type": "build",
-          "name": "all-cppcheck"
-        },
-        {
-          "type": "build",
-          "name": "all-clang-tidy"
         },
         {
           "type": "build",

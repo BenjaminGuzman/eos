@@ -15,6 +15,7 @@ if(EOS_ENABLE_CPPCHECK)
 
         set(CPPCHECK_ARGS
             --enable=all
+            --error-exitcode=1
             --suppress=missingIncludeSystem
             --suppress=constVariablePointer
             --suppress=constParameterPointer
@@ -46,7 +47,7 @@ if(EOS_ENABLE_CPPCHECK)
         )
 
         add_custom_target(cppcheck
-            COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_ARGS} || "${CMAKE_COMMAND}" -E true
+            COMMAND ${CPPCHECK_EXECUTABLE} ${CPPCHECK_ARGS}
             WORKING_DIRECTORY ${EoS_SOURCE_DIR}
             COMMENT "Running cppcheck static analysis..."
         )

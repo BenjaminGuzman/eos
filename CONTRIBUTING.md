@@ -32,7 +32,14 @@ python -m venv .venv
 python -m pip install -r requirements-dev.txt
 
 # Verify everything passes before committing
+# Requires CMake >= 3.25
 cmake --workflow --preset test
+
+# Fallback for older CMake (>= 3.16):
+# cmake -B build -DEOS_BUILD_TESTS=ON -DEOS_PRODUCT=vbox_test
+# cmake --build build
+# ctest --test-dir build --output-on-failure
+# python -m pytest tests/ -v
 ```
 
 The development requirements install `pytest` and `pytest-cov`. Doxygen is
